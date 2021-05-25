@@ -1,9 +1,0 @@
-bird
-alligator
-bat
-bear
-bug
-bull
-butterfly
-cat
-cow
