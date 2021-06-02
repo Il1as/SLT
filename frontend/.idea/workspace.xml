@@ -10,17 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="78f9c7fd-a49b-494b-9f10-0e4437f379d1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/ModelAct.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/slt_logo_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/slt_logo_min.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/slt_logo_pr.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/model_act.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/SLT_App.app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/Slt_App.app.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/CamAct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/list_layout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/ModelAct.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/slt_app/ModelAct.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/model_act.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/model_act.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,10 +134,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="349" y="167" key="AndroidCreateResourceFileDialog" timestamp="1622585391471">
+    <state x="349" y="167" key="AndroidCreateResourceFileDialog" timestamp="1622589196134">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="349" y="167" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1622585391471" />
+    <state x="349" y="167" key="AndroidCreateResourceFileDialog/0.0.1536.824@0.0.1536.824" timestamp="1622589196134" />
     <state x="147" y="64" key="MergeDialog" timestamp="1622583316485">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -152,10 +146,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="407" y="173" key="MultipleFileMergeDialog/0.0.1536.824@0.0.1536.824" timestamp="1622583338374" />
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1622585689298">
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1622589616362">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1622585689298" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1622589616362" />
     <state x="584" y="190" key="chooseDestDirectoryDialog" timestamp="1622584233463">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
