@@ -12,6 +12,7 @@
         android:layout_height="119dp"
         android:background="@color/colorMarron"
         android:fontFamily="casual"
+        android:onClick="enter"
         android:text="Get started"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"

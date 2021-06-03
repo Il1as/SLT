@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 
 public class ModelAct extends AppCompatActivity {
     Button butn2;
