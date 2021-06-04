@@ -10,22 +10,23 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ModelAct extends AppCompatActivity {
-    Button butn2;
+    Button button2;
     private static int VIDEO_REQUEST = 101;
     private Uri videoUri =null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.model_act);
-        butn2 = findViewById(R.id.btn_model);
+        button2 = findViewById(R.id.btn_model);
 }
-        public void traduire(View view)
-        {
+        public void traduire(View view) {
             Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-            if (videoIntent.resolveActivity(getPackageManager() )!= null)
-            {
-                startActivityForResult(videoIntent,VIDEO_REQUEST);
+            if (videoIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(videoIntent, VIDEO_REQUEST);
             }
+        }
+        public void lire(View view)
+        {
             Intent playIntent =new Intent (this,CamActivite.class);
             playIntent.putExtra("videoUri",videoUri.toString());
             startActivity(playIntent);
