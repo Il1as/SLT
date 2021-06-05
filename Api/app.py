@@ -5,12 +5,27 @@ import mediapipe as mp
 
 app = Flask(__name__)
 
-@app.route("/",methods=['POST'])
-def index():
-    file = request.files['image'].read() ## byte file
-    vect_img=preprocess(file)
+@app.route("/api/predict",methods=['POST'])
+def predict():
+    file = request.files['video'].read()
+    print(file) 
+    #vect_img=preprocess(file)
     return "hello world"
 
+@app.route("/api/load_model",methods=['GET'])
+def load():
+    load_model()
+
+
+
+
+
+
+
+
+
+def load_model():
+    pass
 
 def preprocess(file):
     npimg = np.fromstring(file, np.uint8)
