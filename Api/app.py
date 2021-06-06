@@ -2,13 +2,18 @@ from flask import Flask, request
 import numpy as np
 import cv2
 import mediapipe as mp
+import os
 
 app = Flask(__name__)
 
-@app.route("/api/predict",methods=['POST'])
+@app.route("/api/video/predict",methods=['POST'])
 def predict():
-    file = request.files['video'].read()
-    print(file) 
+    file = request.files['video']
+    if file.filename != '':
+        file.save(file.filename)
+    print("video written")
+    images=split_video_to_images(file) 
+    print(images)
     #vect_img=preprocess(file)
     return "hello world"
 
@@ -17,12 +22,20 @@ def load():
     load_model()
 
 
-
-
-
-
-
-
+def split_video_to_images(file):
+    print("split video to images")
+    result=[]
+    vidcap = cv2.VideoCapture(file.filename)
+    success,image = vidcap.read()
+    count = 0
+    while success:
+        result.append(image)
+        success,image = vidcap.read()
+        print('Read a new frame: ', success)
+        count += 1
+    vidcap.release()
+    os.remove(file.filename)
+    return result
 
 def load_model():
     pass
