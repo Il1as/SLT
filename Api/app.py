@@ -7,59 +7,63 @@ import os
 app = Flask(__name__)
 
 @app.route("/api/video/predict",methods=['POST'])
-def predict():
+def predict_video():
     file = request.files['video']
-    if file.filename != '':
-        file.save(file.filename)
-    print("video written")
-    images=split_video_to_images(file) 
-    print(images)
-    #vect_img=preprocess(file)
+    save_file(file)
+    np_images=split_video_to_np_images(file,frame_rate=30) 
+    delete_file(file)
+    feature_map=return_feature_map(np_images)
     return "hello world"
 
-@app.route("/api/load_model",methods=['GET'])
-def load():
-    load_model()
+@app.route("/api/image/predict",methods=['POST'])
+def predict_image():
+    file = request.files['image']
+    np_image = np.fromstring(file, np.uint8)
+    vect_img=preprocess(np_image)
+    return "hello world"
 
+def save_file(file):
+    if file.filename != '':
+        file.save(file.filename)
 
-def split_video_to_images(file):
-    print("split video to images")
+def delete_file(file):
+    os.remove(file.filename)
+
+def return_feature_map(np_images):
+    feature_map=[]
+    for np_image in np_images:
+        preprocessed_img=preprocess(np_image)
+        if preprocessed_img!=None:
+            feature_map.append(preprocessed_img)
+    return feature_map
+
+def split_video_to_np_images(file,frame_rate=30):
     result=[]
     vidcap = cv2.VideoCapture(file.filename)
     success,image = vidcap.read()
     count = 0
     while success:
-        result.append(image)
+        if(count % frame_rate==0):
+            result.append(image)
         success,image = vidcap.read()
-        print('Read a new frame: ', success)
         count += 1
     vidcap.release()
-    os.remove(file.filename)
     return result
 
 def load_model():
     pass
 
-def preprocess(file):
-    npimg = np.fromstring(file, np.uint8)
-    img = cv2.imdecode(npimg, cv2.COLOR_BGR2RGB)
-    img_vect=img_to_vector(img)
-    return img_vect
-
+def preprocess(np_image):
+    img = cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB)
+    return img_to_vector(img)
 
 
 def img_to_vector(image):
-    mp_drawing = mp.solutions.drawing_utils
     mp_holistic = mp.solutions.holistic
     row=[]
     with mp_holistic.Holistic(static_image_mode=True,model_complexity=2) as holistic:
         # Make Detections
         results = holistic.process(image)
-        print(results.pose_landmarks)
-        print(results.left_hand_landmarks)      
-        print(results.right_hand_landmarks)  
-        # Export coordinates
-        # If some landmarks are not visible they are replaced with Nan in the dataset
         
         try:
             
@@ -93,4 +97,4 @@ def img_to_vector(image):
             return row
 
         except Exception as e:
-            print("Error : ",e)
+            pass
