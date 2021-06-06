@@ -30,12 +30,12 @@ def delete_file(file):
     os.remove(file.filename)
 
 def return_feature_map(np_images):
-    feature_map=[]
+    result=[]
     for np_image in np_images:
         preprocessed_img=preprocess(np_image)
         if preprocessed_img!=None:
-            feature_map.append(preprocessed_img)
-    return feature_map
+            result.append(preprocessed_img)
+    return result
 
 def split_video_to_np_images(file,frame_rate=30):
     result=[]
@@ -60,8 +60,9 @@ def preprocess(np_image):
 
 def img_to_vector(image):
     mp_holistic = mp.solutions.holistic
-    row=[]
+    result=[]
     with mp_holistic.Holistic(static_image_mode=True,model_complexity=2) as holistic:
+        
         # Make Detections
         results = holistic.process(image)
         
@@ -70,7 +71,8 @@ def img_to_vector(image):
             #if no hand is in the camera, don't insert the row    
             if(results.left_hand_landmarks==None and results.right_hand_landmarks==None):
                 raise Exception('There is no hand in the picture')    
-                
+
+            # Extract pose landmarks
             if(results.pose_landmarks==None):
                 pose_row=list(np.array(([np.NaN])*132).flatten())
             else:
@@ -88,13 +90,13 @@ def img_to_vector(image):
             if(results.left_hand_landmarks==None):
                 left_row=list(np.array(([np.NaN])*84).flatten())
             else:
-                
                 left = results.left_hand_landmarks.landmark
                 left_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in left]).flatten())
             
-            # Concate rows
-            row = pose_row+right_row+left_row
-            return row
+            # Concatenate rows
+            result = pose_row+right_row+left_row
+
+            return result
 
         except Exception as e:
             pass
