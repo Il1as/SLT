@@ -9,7 +9,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-@app.route("/api/video/predict",methods=['POST'])
+@app.route("/api/predict/video",methods=['POST'])
 def predict_video():
     file = request.files['video']
     save_file(file)
@@ -24,16 +24,30 @@ def predict_video():
     predictions=return_Predictions_array(right_pred,left_pred,two_hands_pred,indexes)
     return jsonify(results = predictions)
 
-@app.route("/api/image/predict",methods=['POST'])
+@app.route("/api/predict/image",methods=['POST'])
 def predict_image():
     file = request.files['image']
-    np_image = np.fromstring(file, np.uint8)
-    vect_img=preprocess_image(np_image)
-    return "hello world"
+    save_file(file)
+    np_image=cv2.imread(file.filename)
+    delete_file(file)
+    vect_img=[preprocess_image(np_image)]
+    np_right,np_left,np_two_hands,_=transform_data(vect_img)
+    if(np_right!=[]):
+        clf=load_model('right_hand_lr.pkl')
+        np_data=np_right
+    elif(np_left!=[]):
+        clf=load_model('left_hand_rf.pkl')
+        np_data=np_left
+    elif(np_two_hands!=[]):
+        clf=load_model('two_hands_lr.pkl')
+        np_data=np_two_hands
+    prediction=clf.predict(np_data).tolist()
+    return jsonify(results = prediction)
 
-@app.before_first_request
-def load_models():#this code is executed only once
-    print("before first request")
+
+
+
+
 
 def merge_two_dicts(x, y):
     z = x.copy()
