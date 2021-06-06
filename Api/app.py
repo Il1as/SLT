@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import numpy as np
 import cv2
 import mediapipe as mp
@@ -16,15 +16,13 @@ def predict_video():
     np_images=split_video_to_np_images(file,frame_rate=30) 
     delete_file(file)
     feature_map=return_feature_map(np_images)
-    np_right,np_left,np_two_hands=transform_data(feature_map)
+    np_right,np_left,np_two_hands,indexes=transform_data(feature_map)
     right_clf,left_clf,two_hands_clf=load_models()
     right_pred=right_clf.predict(np_right)
     left_pred=left_clf.predict(np_left)
     two_hands_pred=two_hands_clf.predict(np_two_hands)
-    print(right_pred)
-    print(left_pred)
-    print(two_hands_pred)
-    return "hello world"
+    predictions=return_Predictions_array(right_pred,left_pred,two_hands_pred,indexes)
+    return jsonify(results = predictions)
 
 @app.route("/api/image/predict",methods=['POST'])
 def predict_image():
@@ -36,6 +34,28 @@ def predict_image():
 @app.before_first_request
 def load_models():#this code is executed only once
     print("before first request")
+
+def merge_two_dicts(x, y):
+    z = x.copy()
+    z.update(y)
+    return z
+def remove_consecutive_duplicates(L):
+    result=[]
+    for i in range(len(L)-1):
+        if(L[i]!=L[i+1]):
+            result.append(L[i])
+    return result
+        
+def return_Predictions_array(right_pred,left_pred,two_hands_pred,indexes):
+    right_dict=dict(zip(indexes[0],right_pred))
+    left_dict=dict(zip(indexes[1],left_pred))
+    two_hands_dict=dict(zip(indexes[2],two_hands_pred))
+    d=merge_two_dicts(right_dict,left_dict)
+    index_pred_dict=merge_two_dicts(d,two_hands_dict)
+    sorted_dict=dict(sorted(index_pred_dict.items()))
+    predictions_list=[*sorted_dict.values()]
+    return remove_consecutive_duplicates(predictions_list)
+
 
 def load_model(filename):
     with open(filename, 'rb') as file:  
@@ -88,8 +108,11 @@ def transform_data(vect_img):#split data to right, left and both hands
     left_df = df.loc[df['x34'].isna()]
     left_df=left_df[left_df.columns[np.concatenate([range(0,132),range(216,300)])]]
     two_hands_df = df.loc[~df[['x34','x55']].isna().any(axis=1)]
-    
-    return (right_df.to_numpy(),left_df.to_numpy(),two_hands_df.to_numpy())
+    indexes=[]
+    indexes.append([index for index in right_df.index])
+    indexes.append([index for index in left_df.index])
+    indexes.append([index for index in two_hands_df.index])
+    return (right_df.to_numpy(),left_df.to_numpy(),two_hands_df.to_numpy(),indexes)
 
 
 def turn_vect_to_dataframe(vect_img):
