@@ -6,6 +6,7 @@ import os
 import pickle
 import pandas as pd
 
+
 app = Flask(__name__)
 
 @app.route("/api/video/predict",methods=['POST'])
@@ -15,7 +16,14 @@ def predict_video():
     np_images=split_video_to_np_images(file,frame_rate=30) 
     delete_file(file)
     feature_map=return_feature_map(np_images)
-    right_df,left_df,two_hands_df=transform_data(feature_map)
+    np_right,np_left,np_two_hands=transform_data(feature_map)
+    right_clf,left_clf,two_hands_clf=load_models()
+    right_pred=right_clf.predict(np_right)
+    left_pred=left_clf.predict(np_left)
+    two_hands_pred=two_hands_clf.predict(np_two_hands)
+    print(right_pred)
+    print(left_pred)
+    print(two_hands_pred)
     return "hello world"
 
 @app.route("/api/image/predict",methods=['POST'])
@@ -25,12 +33,20 @@ def predict_image():
     vect_img=preprocess_image(np_image)
     return "hello world"
 
-
 @app.before_first_request
 def load_models():#this code is executed only once
     print("before first request")
 
+def load_model(filename):
+    with open(filename, 'rb') as file:  
+        result = pickle.load(file)
+    return result
 
+def load_models():
+    right_clf = load_model('right_hand_lr.pkl')
+    left_clf = load_model('left_hand_rf.pkl')
+    two_hands_clf = load_model('two_hands_lr.pkl')
+    return  (right_clf,left_clf,two_hands_clf)
 
 def save_file(file):
     if file.filename != '':
@@ -73,7 +89,7 @@ def transform_data(vect_img):#split data to right, left and both hands
     left_df=left_df[left_df.columns[np.concatenate([range(0,132),range(216,300)])]]
     two_hands_df = df.loc[~df[['x34','x55']].isna().any(axis=1)]
     
-    return (right_df,left_df,two_hands_df)
+    return (right_df.to_numpy(),left_df.to_numpy(),two_hands_df.to_numpy())
 
 
 def turn_vect_to_dataframe(vect_img):
