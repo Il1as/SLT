@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import mediapipe as mp
 import os
+import pickle
 
 app = Flask(__name__)
 
@@ -21,6 +22,13 @@ def predict_image():
     np_image = np.fromstring(file, np.uint8)
     vect_img=preprocess(np_image)
     return "hello world"
+
+
+@app.before_first_request
+def load_models():#this code is executed only once
+    print("before first request")
+
+
 
 def save_file(file):
     if file.filename != '':
@@ -49,9 +57,6 @@ def split_video_to_np_images(file,frame_rate=30):
         count += 1
     vidcap.release()
     return result
-
-def load_model():
-    pass
 
 def preprocess(np_image):
     img = cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB)
