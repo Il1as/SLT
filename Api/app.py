@@ -4,6 +4,7 @@ import cv2
 import mediapipe as mp
 import os
 import pickle
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -14,13 +15,14 @@ def predict_video():
     np_images=split_video_to_np_images(file,frame_rate=30) 
     delete_file(file)
     feature_map=return_feature_map(np_images)
+    right_df,left_df,two_hands_df=transform_data(feature_map)
     return "hello world"
 
 @app.route("/api/image/predict",methods=['POST'])
 def predict_image():
     file = request.files['image']
     np_image = np.fromstring(file, np.uint8)
-    vect_img=preprocess(np_image)
+    vect_img=preprocess_image(np_image)
     return "hello world"
 
 
@@ -40,7 +42,7 @@ def delete_file(file):
 def return_feature_map(np_images):
     result=[]
     for np_image in np_images:
-        preprocessed_img=preprocess(np_image)
+        preprocessed_img=preprocess_image(np_image)
         if preprocessed_img!=None:
             result.append(preprocessed_img)
     return result
@@ -58,9 +60,28 @@ def split_video_to_np_images(file,frame_rate=30):
     vidcap.release()
     return result
 
-def preprocess(np_image):
+def preprocess_image(np_image):
     img = cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB)
     return img_to_vector(img)
+
+
+def transform_data(vect_img):#split data to right, left and both hands
+    df=turn_vect_to_dataframe(vect_img)
+    right_df = df.loc[df['x55'].isna()]
+    right_df=right_df.loc[:,:'v54']
+    left_df = df.loc[df['x34'].isna()]
+    left_df=left_df[left_df.columns[np.concatenate([range(0,132),range(216,300)])]]
+    two_hands_df = df.loc[~df[['x34','x55']].isna().any(axis=1)]
+    
+    return (right_df,left_df,two_hands_df)
+
+
+def turn_vect_to_dataframe(vect_img):
+    landmarks = []
+    for val in range(1, 75+1):
+        landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
+    df = pd.DataFrame(data=vect_img,columns=landmarks)
+    return df
 
 
 def img_to_vector(image):
@@ -100,7 +121,7 @@ def img_to_vector(image):
             
             # Concatenate rows
             result = pose_row+right_row+left_row
-
+            
             return result
 
         except Exception as e:
