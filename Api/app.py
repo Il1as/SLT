@@ -52,17 +52,17 @@ def predict_image():
     prediction=clf.predict(np_data).tolist()
     return jsonify(results = prediction)
 
-@app.errorhandler(403)
+@app.errorhandler(400)
 def handle_no_hands_exception():
-    return jsonify(error=403, message=str("There are no hands in the image"))
+    return jsonify(error=400, message=str("There are no hands in the image"))
 
-@app.errorhandler(404)
+@app.errorhandler(415)
 def handle_not_image_exception():
-    return jsonify(error=403, message=str("The file is not an image"))
+    return jsonify(error=415, message=str("The file is not an image"))
 
-@app.errorhandler(404)
+@app.errorhandler(415)
 def handle_not_video_exception():
-    return jsonify(error=403, message=str("The file is not a video"))
+    return jsonify(error=415, message=str("The file is not a video"))
 
 
 
