@@ -31,6 +31,8 @@ def predict_image():
     np_image=cv2.imread(file.filename)
     delete_file(file)
     vect_img=[preprocess_image(np_image)]
+    if vect_img==[None]:
+        return jsonify(results = [None])
     np_right,np_left,np_two_hands,_=transform_data(vect_img)
     if(np_right!=[]):
         clf=load_model('right_hand_lr.pkl')
