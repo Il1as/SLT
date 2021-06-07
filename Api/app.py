@@ -16,6 +16,8 @@ def predict_video():
     np_images=split_video_to_np_images(file,frame_rate=30) 
     delete_file(file)
     feature_map=return_feature_map(np_images)
+    if(feature_map==[]):
+        return jsonify(results = [None])
     np_right,np_left,np_two_hands,indexes=transform_data(feature_map)
     right_clf,left_clf,two_hands_clf=load_models()
     right_pred=right_clf.predict(np_right)
@@ -85,8 +87,7 @@ def load_models():
     return  (right_clf,left_clf,two_hands_clf)
 
 def save_file(file):
-    if file.filename != '':
-        file.save(file.filename)
+    file.save(file.filename)
 
 def delete_file(file):
     os.remove(file.filename)
