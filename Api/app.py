@@ -5,7 +5,7 @@ import mediapipe as mp
 import os
 import pickle
 import pandas as pd
-
+import mimetypes
 
 app = Flask(__name__)
 
@@ -13,11 +13,13 @@ app = Flask(__name__)
 def predict_video():
     file = request.files['video']
     save_file(file)
-    np_images=split_video_to_np_images(file,frame_rate=30) 
+    if(not is_file_type(file,'video')):
+        return handle_not_video_exception()
+    np_images=split_video_to_np_images(file,frame_rate=30)
     delete_file(file)
     feature_map=return_feature_map(np_images)
     if(feature_map==[]):
-        return jsonify(results = [None])
+        return handle_no_hands_exception()
     np_right,np_left,np_two_hands,indexes=transform_data(feature_map)
     right_clf,left_clf,two_hands_clf=load_models()
     right_pred=right_clf.predict(np_right)
@@ -30,11 +32,13 @@ def predict_video():
 def predict_image():
     file = request.files['image']
     save_file(file)
+    if(not is_file_type(file,'image')):
+        return handle_not_image_exception()
     np_image=cv2.imread(file.filename)
     delete_file(file)
     vect_img=[preprocess_image(np_image)]
     if vect_img==[None]:
-        return jsonify(results = [None])
+        return handle_no_hands_exception()
     np_right,np_left,np_two_hands,_=transform_data(vect_img)
     if(np_right!=[]):
         clf=load_model('right_hand_lr.pkl')
@@ -48,10 +52,33 @@ def predict_image():
     prediction=clf.predict(np_data).tolist()
     return jsonify(results = prediction)
 
+@app.errorhandler(403)
+def handle_no_hands_exception():
+    return jsonify(error=403, message=str("There are no hands in the image"))
+
+@app.errorhandler(404)
+def handle_not_image_exception():
+    return jsonify(error=403, message=str("The file is not an image"))
+
+@app.errorhandler(404)
+def handle_not_video_exception():
+    return jsonify(error=403, message=str("The file is not a video"))
 
 
 
-
+def is_file_type(file,type):
+    mimestart=type_of_file(file.filename)
+    if(mimestart==type):
+        return True
+    delete_file(file)
+    return False
+    
+def type_of_file(filename):
+    mimetypes.init()
+    result = mimetypes.guess_type(filename)[0]
+    if result != None:
+        result = result.split('/')[0]
+    return result
 
 def merge_two_dicts(x, y):
     z = x.copy()
