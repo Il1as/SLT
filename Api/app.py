@@ -41,13 +41,13 @@ def predict_image():
         return handle_no_hands_exception()
     np_right,np_left,np_two_hands,_=transform_data(vect_img)
     if(np_right!=[]):
-        clf=load_model('right_hand_lr.pkl')
+        clf=load_model('right_hand_logReg.pkl')
         np_data=np_right
     elif(np_left!=[]):
-        clf=load_model('left_hand_rf.pkl')
+        clf=load_model('left_hand_randForest.pkl')
         np_data=np_left
     elif(np_two_hands!=[]):
-        clf=load_model('two_hands_lr.pkl')
+        clf=load_model('two_hands_logReg.pkl')
         np_data=np_two_hands
     prediction=clf.predict(np_data).tolist()
     return jsonify(results = prediction)
@@ -108,9 +108,9 @@ def load_model(filename):
     return result
 
 def load_models():
-    right_clf = load_model('right_hand_lr.pkl')
-    left_clf = load_model('left_hand_rf.pkl')
-    two_hands_clf = load_model('two_hands_lr.pkl')
+    right_clf = load_model('right_hand_logReg.pkl')
+    left_clf = load_model('left_hand_randForest.pkl')
+    two_hands_clf = load_model('two_hands_logReg.pkl')
     return  (right_clf,left_clf,two_hands_clf)
 
 def save_file(file):
