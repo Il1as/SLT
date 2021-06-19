@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import numpy as np
 import cv2
 import mediapipe as mp
-import os
 import pickle
 import pandas as pd
 import mimetypes
