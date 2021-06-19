@@ -6,51 +6,53 @@ import os
 import pickle
 import pandas as pd
 import mimetypes
+from PIL import Image
+from pathlib import Path
+import tempfile
 
 app = Flask(__name__)
 
 @app.route("/api/predict/video",methods=['POST'])
 def predict_video():
-    file = request.files['video']
-    save_file(file)
-    if(not is_file_type(file,'video')):
-        return handle_not_video_exception()
-    np_images=split_video_to_np_images(file,frame_rate=30)
-    delete_file(file)
-    feature_map=return_feature_map(np_images)
-    if(feature_map==[]):
-        return handle_no_hands_exception()
-    np_right,np_left,np_two_hands,indexes=transform_data(feature_map)
-    right_clf,left_clf,two_hands_clf=load_models()
-    right_pred=right_clf.predict(np_right)
-    left_pred=left_clf.predict(np_left)
-    two_hands_pred=two_hands_clf.predict(np_two_hands)
-    predictions=return_Predictions_array(right_pred,left_pred,two_hands_pred,indexes)
-    return jsonify(results = predictions)
+    if request.method == 'POST':
+        file = request.files['video']
+        #if(not is_file_type(file,'video')):
+        #    return handle_not_video_exception()
+        np_images=split_video_to_np_images(file,frame_rate=30)
+        feature_map=return_feature_map(np_images)
+        if(feature_map==[]):
+            return handle_no_hands_exception()
+        np_right,np_left,np_two_hands,indexes=transform_data(feature_map)
+        right_clf,left_clf,two_hands_clf=load_models()
+        right_pred=right_clf.predict(np_right)
+        left_pred=left_clf.predict(np_left)
+        two_hands_pred=two_hands_clf.predict(np_two_hands)
+        predictions=return_Predictions_array(right_pred,left_pred,two_hands_pred,indexes)
+        return jsonify(results = predictions)
 
 @app.route("/api/predict/image",methods=['POST'])
 def predict_image():
-    file = request.files['image']
-    save_file(file)
-    if(not is_file_type(file,'image')):
-        return handle_not_image_exception()
-    np_image=cv2.imread(file.filename)
-    delete_file(file)
-    vect_img=[preprocess_image(np_image)]
-    if vect_img==[None]:
-        return handle_no_hands_exception()
-    np_right,np_left,np_two_hands,_=transform_data(vect_img)
-    if(np_right!=[]):
-        clf=load_model('right_hand_logReg.pkl')
-        np_data=np_right
-    elif(np_left!=[]):
-        clf=load_model('left_hand_randForest.pkl')
-        np_data=np_left
-    elif(np_two_hands!=[]):
-        clf=load_model('two_hands_logReg.pkl')
-        np_data=np_two_hands
-    prediction=clf.predict(np_data).tolist()
-    return jsonify(results = prediction)
+    if request.method == 'POST':
+        file = request.files['image']
+        #if(not is_file_type(file,'image')):
+        #    return handle_not_image_exception()
+        np_image=np.array(Image.open(file))
+        print(file.stream)
+        vect_img=[preprocess_image(np_image)]
+        if vect_img==[None]:
+            return handle_no_hands_exception()
+        np_right,np_left,np_two_hands,_=transform_data(vect_img)
+        if(np_right!=[]):
+            clf=load_model('right_hand_logReg.pkl')
+            np_data=np_right
+        elif(np_left!=[]):
+            clf=load_model('left_hand_randForest.pkl')
+            np_data=np_left
+        elif(np_two_hands!=[]):
+            clf=load_model('two_hands_logReg.pkl')
+            np_data=np_two_hands
+        prediction=clf.predict(np_data).tolist()
+        return jsonify(results = prediction)
 
 @app.errorhandler(400)
 def handle_no_hands_exception():
@@ -129,20 +131,24 @@ def return_feature_map(np_images):
 
 def split_video_to_np_images(file,frame_rate=30):
     result=[]
-    vidcap = cv2.VideoCapture(file.filename)
-    success,image = vidcap.read()
-    count = 0
-    while success:
-        if(count % frame_rate==0):
-            result.append(image)
+    with tempfile.TemporaryDirectory() as td:
+        temp_filename = Path(td) / 'file'
+        file.save(temp_filename)
+        print(temp_filename)
+        vidcap = cv2.VideoCapture(str(temp_filename))
         success,image = vidcap.read()
-        count += 1
-    vidcap.release()
+        count = 0
+        while success:
+            if(count % frame_rate==0):
+                rgb_image=cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                result.append(rgb_image)
+            success,image = vidcap.read()
+            count += 1
+        vidcap.release()
     return result
 
 def preprocess_image(np_image):
-    img = cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB)
-    return img_to_vector(img)
+    return img_to_vector(np_image)
 
 
 def transform_data(vect_img):#split data to right, left and both hands
