@@ -16,8 +16,8 @@ app = Flask(__name__)
 def predict_video():
     if request.method == 'POST':
         file = request.files['video']
-        #if(not is_file_type(file,'video')):
-        #    return handle_not_video_exception()
+        if(not is_file_type(file.filename,'video')):
+            return handle_not_video_exception()
         np_images=split_video_to_np_images(file,frame_rate=30)
         feature_map=return_feature_map(np_images)
         if(feature_map==[]):
@@ -34,8 +34,8 @@ def predict_video():
 def predict_image():
     if request.method == 'POST':
         file = request.files['image']
-        #if(not is_file_type(file,'image')):
-        #    return handle_not_image_exception()
+        if(not is_file_type(file.filename,'image')):
+            return handle_not_image_exception()
         np_image=np.array(Image.open(file))
         print(file.stream)
         vect_img=[preprocess_image(np_image)]
@@ -68,11 +68,10 @@ def handle_not_video_exception():
 
 
 
-def is_file_type(file,type):
-    mimestart=type_of_file(file.filename)
+def is_file_type(filename,type):
+    mimestart=type_of_file(filename)
     if(mimestart==type):
         return True
-    delete_file(file)
     return False
     
 def type_of_file(filename):
@@ -114,12 +113,6 @@ def load_models():
     left_clf = load_model('left_hand_randForest.pkl')
     two_hands_clf = load_model('two_hands_logReg.pkl')
     return  (right_clf,left_clf,two_hands_clf)
-
-def save_file(file):
-    file.save(file.filename)
-
-def delete_file(file):
-    os.remove(file.filename)
 
 def return_feature_map(np_images):
     result=[]
