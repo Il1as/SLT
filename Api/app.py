@@ -36,7 +36,6 @@ def predict_image():
         if(not is_file_type(file.filename,'image')):
             return handle_not_image_exception()
         np_image=np.array(Image.open(file))
-        print(file.stream)
         vect_img=[preprocess_image(np_image)]
         if vect_img==[None]:
             return handle_no_hands_exception()
@@ -126,7 +125,6 @@ def split_video_to_np_images(file,frame_rate=30):
     with tempfile.TemporaryDirectory() as td:
         temp_filename = Path(td) / 'file'
         file.save(temp_filename)
-        print(temp_filename)
         vidcap = cv2.VideoCapture(str(temp_filename))
         success,image = vidcap.read()
         count = 0
